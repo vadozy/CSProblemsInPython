@@ -16,6 +16,9 @@
 from typing import TypeVar, Generic, List
 T = TypeVar('T')
 
+# Globals
+calls: int = 0
+num_discs: int = 3
 
 class Stack(Generic[T]):
 
@@ -24,6 +27,8 @@ class Stack(Generic[T]):
 
     def push(self, item: T) -> None:
         self._container.append(item)
+        global calls
+        calls += 1
 
     def pop(self) -> T:
         return self._container.pop()
@@ -32,7 +37,6 @@ class Stack(Generic[T]):
         return repr(self._container)
 
 
-num_discs: int = 3
 tower_a: Stack[int] = Stack()
 tower_b: Stack[int] = Stack()
 tower_c: Stack[int] = Stack()
@@ -54,3 +58,4 @@ if __name__ == "__main__":
     print(tower_a)
     print(tower_b)
     print(tower_c)
+    print("calls: {}".format(calls - num_discs))
