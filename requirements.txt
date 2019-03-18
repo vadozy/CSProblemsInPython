@@ -1,1 +1,2 @@
 pylint==2.2.2
+typing-extensions==3.7.2
