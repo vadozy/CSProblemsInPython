@@ -21,7 +21,7 @@ from generic_search import dfs, bfs, node_to_path, astar, Node
 
 
 class Cell(str, Enum):
-    EMPTY = " "
+    EMPTY = "."
     BLOCKED = "X"
     START = "S"
     GOAL = "G"
