@@ -126,7 +126,8 @@ if __name__ == "__main__":
         m.mark(path2)
         print(m)
         m.clear(path2)
-    # Test A*
+
+    # Test A* manhattan
     distance: Callable[[MazeLocation], float] = manhattan_distance(m.goal)
     solution3: Optional[Node[MazeLocation]] = astar(m.start, m.goal_test, m.successors, distance)
     if solution3 is None:
@@ -135,3 +136,15 @@ if __name__ == "__main__":
         path3: List[MazeLocation] = node_to_path(solution3)
         m.mark(path3)
         print(m)
+        m.clear(path3)
+
+    # Test A* eucledian
+    distance: Callable[[MazeLocation], float] = euclidean_distance(m.goal)
+    solution4: Optional[Node[MazeLocation]] = astar(m.start, m.goal_test, m.successors, distance)
+    if solution4 is None:
+        print("No solution found using A*!")
+    else:
+        path4: List[MazeLocation] = node_to_path(solution4)
+        m.mark(path4)
+        print(m)
+        m.clear(path4)
