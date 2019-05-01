@@ -16,6 +16,7 @@
 from __future__ import annotations
 from typing import List, Optional
 from generic_search import bfs, Node, node_to_path
+from functools import reduce
 
 MAX_NUM: int = 3
 
@@ -38,7 +39,7 @@ class MCState:
         return hash((self.wm, self.wc, self.em, self.ec, self.boat))
 
     def __eq__(self, other: MCState):
-        return hash(self) == hash(other)
+        return all([getattr(self, el) == getattr(other, el) for el in ["wm", "wc", "em", "ec", "boat"]])
 
     def goal_test(self) -> bool:
         return self.is_legal and self.em == MAX_NUM and self.ec == MAX_NUM
