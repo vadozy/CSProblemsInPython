@@ -20,6 +20,7 @@ T = TypeVar('T')
 calls: int = 0
 num_discs: int = 3
 
+
 class Stack(Generic[T]):
 
     def __init__(self) -> None:
