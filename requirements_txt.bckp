@@ -1,0 +1,3 @@
+pylint
+typing-extensions
+mypy
