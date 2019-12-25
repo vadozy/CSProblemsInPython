@@ -14,8 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from __future__ import annotations
-from typing import TypeVar, Iterable, Sequence, Generic, List, Callable, Set, Deque, Dict, Any, Optional
-from typing_extensions import Protocol
+
+from abc import abstractmethod
+from typing import TypeVar, Iterable, Sequence, Generic, List, Callable, Set, Deque, Dict, Any, Optional, Protocol
 from heapq import heappush, heappop
 
 T = TypeVar('T')
@@ -32,9 +33,11 @@ C = TypeVar("C", bound="Comparable")
 
 
 class Comparable(Protocol):
+    @abstractmethod
     def __eq__(self, other: Any) -> bool:
         ...
 
+    @abstractmethod
     def __lt__(self: C, other: C) -> bool:
         ...
 
@@ -94,16 +97,20 @@ class Node(Generic[T]):
 def dfs(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], List[T]]) -> Optional[Node[T]]:
     # frontier is where we've yet to go
     frontier: Stack[Node[T]] = Stack()
+    return perform_search(frontier, goal_test, initial, successors)
+
+
+def perform_search(frontier, goal_test, initial, successors):
     frontier.push(Node(initial, None))
     # explored is where we've been
     explored: Set[T] = {initial}
-
     # keep going while there is more to explore
     while not frontier.empty:
         current_node: Node[T] = frontier.pop()
         current_state: T = current_node.state
         # if we found the goal, we're done
         if goal_test(current_state):
+            print("Explored: {}".format(len(explored)))
             return current_node
         # check where we can go next and haven't explored
         for child in successors(current_state):
@@ -145,24 +152,7 @@ class Queue(Generic[T]):
 def bfs(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], List[T]]) -> Optional[Node[T]]:
     # frontier is where we've yet to go
     frontier: Queue[Node[T]] = Queue()
-    frontier.push(Node(initial, None))
-    # explored is where we've been
-    explored: Set[T] = {initial}
-
-    # keep going while there is more to explore
-    while not frontier.empty:
-        current_node: Node[T] = frontier.pop()
-        current_state: T = current_node.state
-        # if we found the goal, we're done
-        if goal_test(current_state):
-            return current_node
-        # check where we can go next and haven't explored
-        for child in successors(current_state):
-            if child in explored:  # skip children we already explored
-                continue
-            explored.add(child)
-            frontier.push(Node(child, current_node))
-    return None  # went through everything and never found goal
+    return perform_search(frontier, goal_test, initial, successors)
 
 
 class PriorityQueue(Generic[T]):
@@ -183,7 +173,8 @@ class PriorityQueue(Generic[T]):
         return repr(self._container)
 
 
-def astar(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], List[T]], heuristic: Callable[[T], float]) -> Optional[Node[T]]:
+def astar(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], List[T]],
+          heuristic: Callable[[T], float]) -> Optional[Node[T]]:
     # frontier is where we've yet to go
     frontier: PriorityQueue[Node[T]] = PriorityQueue()
     frontier.push(Node(initial, None, 0.0, heuristic(initial)))
@@ -196,6 +187,7 @@ def astar(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], 
         current_state: T = current_node.state
         # if we found the goal, we're done
         if goal_test(current_state):
+            print("Explored [astar]: {}".format(len(explored)))
             return current_node
         # check where we can go next and haven't explored
         for child in successors(current_state):

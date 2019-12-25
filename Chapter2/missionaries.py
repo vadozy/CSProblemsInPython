@@ -38,7 +38,9 @@ class MCState:
     def __hash__(self) -> int:
         return hash((self.wm, self.wc, self.em, self.ec, self.boat))
 
-    def __eq__(self, other: MCState):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, MCState):
+            return NotImplemented
         return all([getattr(self, el) == getattr(other, el) for el in ["wm", "wc", "em", "ec", "boat"]])
 
     def goal_test(self) -> bool:
@@ -46,15 +48,15 @@ class MCState:
 
     @property
     def is_legal(self) -> bool:
-        if self.wm < self.wc and self.wm > 0:
+        if self.wc > self.wm > 0:
             return False
-        if self.em < self.ec and self.em > 0:
+        if self.ec > self.em > 0:
             return False
         return True
 
     def successors(self) -> List[MCState]:
         sucs: List[MCState] = []
-        if self.boat: # boat on west bank
+        if self.boat:  # boat on west bank
             if self.wm > 1:
                 sucs.append(MCState(self.wm - 2, self.wc, not self.boat))
             if self.wm > 0:
@@ -65,7 +67,7 @@ class MCState:
                 sucs.append(MCState(self.wm, self.wc - 1, not self.boat))
             if (self.wc > 0) and (self.wm > 0):
                 sucs.append(MCState(self.wm - 1, self.wc - 1, not self.boat))
-        else: # boat on east bank
+        else:  # boat on east bank
             if self.em > 1:
                 sucs.append(MCState(self.wm + 2, self.wc, not self.boat))
             if self.em > 0:
