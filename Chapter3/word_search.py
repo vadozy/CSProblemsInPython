@@ -28,7 +28,7 @@ class GridLocation(NamedTuple):
 
 def generate_grid(rows: int, columns: int) -> Grid:
     # initialize grid with random letters
-    return [[choice(ascii_uppercase) for c in range(columns)] for r in range(rows)]
+    return [[choice(ascii_uppercase) for _c in range(columns)] for _r in range(rows)]
 
 
 def display_grid(grid: Grid) -> None:
@@ -67,27 +67,27 @@ class WordSearchConstraint(Constraint[str, List[GridLocation]]):
 
     def satisfied(self, assignment: Dict[str, List[GridLocation]]) -> bool:
         # if there are any duplicates grid locations then there is an overlap
-        all_locations = [locs for values in assignment.values() for locs in values]
+        all_locations = [locs for lists in assignment.values() for locs in lists]
         return len(set(all_locations)) == len(all_locations)
 
 
 if __name__ == "__main__":
-    grid: Grid = generate_grid(9, 9)
-    words: List[str] = ["MATTHEW", "JOE", "MARY", "SARAH", "SALLY"]
+    the_grid: Grid = generate_grid(9, 9)
+    the_words: List[str] = ["MATTHEW", "JOE", "MARY", "SARAH", "SALLY"]
     locations: Dict[str, List[List[GridLocation]]] = {}
-    for word in words:
-        locations[word] = generate_domain(word, grid)
-    csp: CSP[str, List[GridLocation]] = CSP(words, locations)
-    csp.add_constraint(WordSearchConstraint(words))
+    for wrd in the_words:
+        locations[wrd] = generate_domain(wrd, the_grid)
+    csp: CSP[str, List[GridLocation]] = CSP(the_words, locations)
+    csp.add_constraint(WordSearchConstraint(the_words))
     solution: Optional[Dict[str, List[GridLocation]]] = csp.backtracking_search()
     if solution is None:
         print("No solution found!")
     else:
-        for word, grid_locations in solution.items():
+        for wrd, grid_locations in solution.items():
             # random reverse half the time
             if choice([True, False]):
                 grid_locations.reverse()
-            for index, letter in enumerate(word):
-                (row, col) = (grid_locations[index].row, grid_locations[index].column)
-                grid[row][col] = letter
-        display_grid(grid)
+            for index, letter in enumerate(wrd):
+                (_row, _col) = (grid_locations[index].row, grid_locations[index].column)
+                the_grid[_row][_col] = letter
+        display_grid(the_grid)

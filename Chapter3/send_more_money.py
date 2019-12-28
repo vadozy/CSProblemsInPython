@@ -41,17 +41,17 @@ class SendMoreMoneyConstraint(Constraint[str, int]):
             more: int = m * 1000 + o * 100 + r * 10 + e
             money: int = m * 10000 + o * 1000 + n * 100 + e * 10 + y
             return send + more == money
-        return True # no conflict
+        return True  # no conflict
 
 
 if __name__ == "__main__":
-    letters: List[str] = ["S", "E", "N", "D", "M", "O", "R", "Y"]
+    all_letters: List[str] = ["S", "E", "N", "D", "M", "O", "R", "Y"]
     possible_digits: Dict[str, List[int]] = {}
-    for letter in letters:
+    for letter in all_letters:
         possible_digits[letter] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     possible_digits["M"] = [1]  # so we don't get answers starting with a 0
-    csp: CSP[str, int] = CSP(letters, possible_digits)
-    csp.add_constraint(SendMoreMoneyConstraint(letters))
+    csp: CSP[str, int] = CSP(all_letters, possible_digits)
+    csp.add_constraint(SendMoreMoneyConstraint(all_letters))
     solution: Optional[Dict[str, int]] = csp.backtracking_search()
     if solution is None:
         print("No solution found!")
