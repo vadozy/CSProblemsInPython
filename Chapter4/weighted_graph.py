@@ -17,19 +17,19 @@ from typing import TypeVar, Generic, List, Tuple
 from graph import Graph
 from weighted_edge import WeightedEdge
 
-V = TypeVar('V') # type of the vertices in the graph
+V = TypeVar('V')  # type of the vertices in the graph
 
 
-class WeightedGraph(Generic[V], Graph[V]):
-    def __init__(self, vertices: List[V] = []) -> None:
-        self._vertices: List[V] = vertices
-        self._edges: List[List[WeightedEdge]] = [[] for _ in vertices]
+class WeightedGraph(Generic[V], Graph[V, WeightedEdge]):
+    def __init__(self, vertices: List[V] = None) -> None:
+        super().__init__(vertices)
+        self._edges: List[List[WeightedEdge]] = [[] for _ in self._vertices]
 
-    def add_edge_by_indices(self, u: int, v: int, weight: float) -> None:
+    def add_edge_by_indices(self, u: int, v: int, weight: float = 0) -> None:
         edge: WeightedEdge = WeightedEdge(u, v, weight)
-        self.add_edge(edge) # call superclass version
+        self.add_edge(edge)  # call superclass version
 
-    def add_edge_by_vertices(self, first: V, second: V, weight: float) -> None:
+    def add_edge_by_vertices(self, first: V, second: V, weight: float = 0) -> None:
         u: int = self._vertices.index(first)
         v: int = self._vertices.index(second)
         self.add_edge_by_indices(u, v, weight)
@@ -48,7 +48,9 @@ class WeightedGraph(Generic[V], Graph[V]):
 
 
 if __name__ == "__main__":
-    city_graph2: WeightedGraph[str] = WeightedGraph(["Seattle", "San Francisco", "Los Angeles", "Riverside", "Phoenix", "Chicago", "Boston", "New York", "Atlanta", "Miami", "Dallas", "Houston", "Detroit", "Philadelphia", "Washington"])
+    city_graph2: WeightedGraph[str] = WeightedGraph(
+        ["Seattle", "San Francisco", "Los Angeles", "Riverside", "Phoenix", "Chicago", "Boston", "New York", "Atlanta",
+         "Miami", "Dallas", "Houston", "Detroit", "Philadelphia", "Washington"])
 
     city_graph2.add_edge_by_vertices("Seattle", "Chicago", 1737)
     city_graph2.add_edge_by_vertices("Seattle", "San Francisco", 678)

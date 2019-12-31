@@ -14,14 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from __future__ import annotations
-from typing import TypeVar, List, Optional, Tuple, Dict
+from typing import TypeVar, List, Optional, Tuple, Dict, cast
 from dataclasses import dataclass
 from mst import WeightedPath, print_weighted_path
 from weighted_graph import WeightedGraph
 from weighted_edge import WeightedEdge
 from priority_queue import PriorityQueue
 
-V = TypeVar('V') # type of the vertices in the graph
+V = TypeVar('V')  # type of the vertices in the graph
 
 
 @dataclass
@@ -32,26 +32,34 @@ class DijkstraNode:
     def __lt__(self, other: DijkstraNode) -> bool:
         return self.distance < other.distance
 
-    def __eq__(self, other: DijkstraNode) -> bool:
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, DijkstraNode):
+            return NotImplemented
         return self.distance == other.distance
+
+    def vertex_distance(self) -> Tuple[int, float]:
+        return self.vertex, self.distance
 
 
 def dijkstra(wg: WeightedGraph[V], root: V) -> Tuple[List[Optional[float]], Dict[int, WeightedEdge]]:
-    first: int = wg.index_of(root) # find starting index
+    first: int = wg.index_of(root)  # find starting index
     # distances are unknown at first
     distances: List[Optional[float]] = [None] * wg.vertex_count
-    distances[first] = 0 # the root is 0 away from the root
-    path_dict: Dict[int, WeightedEdge] = {} # how we got to each vertex
+    distances[first] = 0  # the root is 0 away from the root
+    path_dict: Dict[int, WeightedEdge] = {}  # how we got to each vertex
     pq: PriorityQueue[DijkstraNode] = PriorityQueue()
     pq.push(DijkstraNode(first, 0))
 
     while not pq.empty:
-        u: int = pq.pop().vertex # explore the next closest vertex
-        dist_u: float = distances[u] # should already have seen it
+        u, d = pq.pop().vertex_distance()  # explore the next closest vertex
+        dist_u: float = cast(float, distances[u])  # should already have seen it
+        if d > dist_u:
+            print("Vadim's Inefficiancy Fix")
+            continue
         # look at every edge/vertex from the vertex in question
         for we in wg.edges_for_index(u):
             # the old distance to this vertex
-            dist_v: float = distances[we.v]
+            dist_v: float = cast(float, distances[we.v])
             # no old distance or found shorter path
             if dist_v is None or dist_v > we.weight + dist_u:
                 # update distance to this vertex
@@ -87,7 +95,9 @@ def path_dict_to_path(start: int, end: int, path_dict: Dict[int, WeightedEdge]) 
 
 
 if __name__ == "__main__":
-    city_graph2: WeightedGraph[str] = WeightedGraph(["Seattle", "San Francisco", "Los Angeles", "Riverside", "Phoenix", "Chicago", "Boston", "New York", "Atlanta", "Miami", "Dallas", "Houston", "Detroit", "Philadelphia", "Washington"])
+    city_graph2: WeightedGraph[str] = WeightedGraph(
+        ["Seattle", "San Francisco", "Los Angeles", "Riverside", "Phoenix", "Chicago", "Boston", "New York", "Atlanta",
+         "Miami", "Dallas", "Houston", "Detroit", "Philadelphia", "Washington"])
 
     city_graph2.add_edge_by_vertices("Seattle", "Chicago", 1737)
     city_graph2.add_edge_by_vertices("Seattle", "San Francisco", 678)
@@ -116,13 +126,14 @@ if __name__ == "__main__":
     city_graph2.add_edge_by_vertices("New York", "Philadelphia", 81)
     city_graph2.add_edge_by_vertices("Philadelphia", "Washington", 123)
 
-    distances, path_dict = dijkstra(city_graph2, "Los Angeles")
-    name_distance: Dict[str, Optional[int]] = distance_array_to_vertex_dict(city_graph2, distances)
+    all_distances, all_path_dict = dijkstra(city_graph2, "Los Angeles")
+    name_distance: Dict[str, Optional[float]] = distance_array_to_vertex_dict(city_graph2, all_distances)
     print("Distances from Los Angeles:")
     for key, value in name_distance.items():
         print(f"{key} : {value}")
-    print("") # blank line
+    print("")  # blank line
 
     print("Shortest path from Los Angeles to Boston:")
-    path: WeightedPath = path_dict_to_path(city_graph2.index_of("Los Angeles"), city_graph2.index_of("Boston"), path_dict)
+    path: WeightedPath = path_dict_to_path(city_graph2.index_of("Los Angeles"), city_graph2.index_of("Boston"),
+                                           all_path_dict)
     print_weighted_path(city_graph2, path)
