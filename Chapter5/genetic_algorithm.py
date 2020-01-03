@@ -14,20 +14,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from __future__ import annotations
-from typing import TypeVar, Generic, List, Tuple, Callable
+from typing import TypeVar, Generic, List, Tuple, Callable, cast
 from enum import Enum
 from random import choices, random
 from heapq import nlargest
 from statistics import mean
 from chromosome import Chromosome
 
-C = TypeVar('C', bound=Chromosome) # type of the chromosomes
+C = TypeVar('C', bound=Chromosome)  # type of the chromosomes
 
 
 class GeneticAlgorithm(Generic[C]):
-    SelectionType = Enum("SelectionType", "ROULETTE TOURNAMENT")
+    class SelectionType(Enum):
+        ROULETTE = 1
+        TOURNAMENT = 2
 
-    def __init__(self, initial_population: List[C], threshold: float, max_generations: int = 100, mutation_chance: float = 0.01, crossover_chance: float = 0.7, selection_type: SelectionType = SelectionType.TOURNAMENT) -> None:
+    def __init__(self, initial_population: List[C], threshold: float, max_generations: int = 100,
+                 mutation_chance: float = 0.01, crossover_chance: float = 0.7,
+                 selection_type: SelectionType = SelectionType.TOURNAMENT) -> None:
         self._population: List[C] = initial_population
         self._threshold: float = threshold
         self._max_generations: int = max_generations
@@ -39,12 +43,12 @@ class GeneticAlgorithm(Generic[C]):
     # Use the probability distribution wheel to pick 2 parents
     # Note: will not work with negative fitness results
     def _pick_roulette(self, wheel: List[float]) -> Tuple[C, C]:
-        return tuple(choices(self._population, weights=wheel, k=2))
+        return cast(Tuple[C, C], tuple(choices(self._population, weights=wheel, k=2)))
 
     # Choose num_participants at random and take the best 2
     def _pick_tournament(self, num_participants: int) -> Tuple[C, C]:
         participants: List[C] = choices(self._population, k=num_participants)
-        return tuple(nlargest(2, participants, key=self._fitness_key))
+        return cast(Tuple[C, C], tuple(nlargest(2, participants, key=self._fitness_key)))
 
     # Replace the population with a new generation of individuals
     def _reproduce_and_replace(self) -> None:
@@ -64,7 +68,7 @@ class GeneticAlgorithm(Generic[C]):
         # if we had an odd number, we'll have 1 extra, so we remove it
         if len(new_population) > len(self._population):
             new_population.pop()
-        self._population = new_population # replace reference
+        self._population = new_population  # replace reference
 
     # With _mutation_chance probability mutate each individual
     def _mutate(self) -> None:
@@ -85,6 +89,5 @@ class GeneticAlgorithm(Generic[C]):
             self._mutate()
             highest: C = max(self._population, key=self._fitness_key)
             if highest.fitness() > best.fitness():
-                best = highest # found a new best
-        return best # best we found in _max_generations
-
+                best = highest  # found a new best
+        return best  # best we found in _max_generations

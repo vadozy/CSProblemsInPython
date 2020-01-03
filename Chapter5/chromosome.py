@@ -17,7 +17,7 @@ from __future__ import annotations
 from typing import TypeVar, Tuple, Type
 from abc import ABC, abstractmethod
 
-T = TypeVar('T', bound='Chromosome') # for returning self
+T = TypeVar('T', bound='Chromosome')  # for returning self
 
 
 # Base class for all chromosomes; all methods must be overridden

@@ -55,7 +55,7 @@ class SendMoreMoney2(Chromosome):
         child2.letters[child2.letters.index(l1)], child2.letters[idx1] = child2.letters[idx1], l1
         return child1, child2
 
-    def mutate(self) -> None: # swap two letters' locations
+    def mutate(self) -> None:  # swap two letters' locations
         idx1, idx2 = sample(range(len(self.letters)), k=2)
         self.letters[idx1], self.letters[idx2] = self.letters[idx2], self.letters[idx1]
 
@@ -77,6 +77,9 @@ class SendMoreMoney2(Chromosome):
 
 if __name__ == "__main__":
     initial_population: List[SendMoreMoney2] = [SendMoreMoney2.random_instance() for _ in range(1000)]
-    ga: GeneticAlgorithm[SendMoreMoney2] = GeneticAlgorithm(initial_population=initial_population, threshold=1.0, max_generations = 1000, mutation_chance = 0.2, crossover_chance = 0.7, selection_type=GeneticAlgorithm.SelectionType.ROULETTE)
+    ga: GeneticAlgorithm[SendMoreMoney2] = GeneticAlgorithm(initial_population=initial_population, threshold=1.0,
+                                                            max_generations=1000, mutation_chance=0.2,
+                                                            crossover_chance=0.7,
+                                                            selection_type=GeneticAlgorithm.SelectionType.ROULETTE)
     result: SendMoreMoney2 = ga.run()
     print(result)
