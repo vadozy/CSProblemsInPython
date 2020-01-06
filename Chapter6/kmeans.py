@@ -26,30 +26,32 @@ from data_point import DataPoint
 def zscores(original: Sequence[float]) -> List[float]:
     avg: float = mean(original)
     std: float = pstdev(original)
-    if std == 0: # return all zeros if there is no variation
+    if std == 0:  # return all zeros if there is no variation
         return [0] * len(original)
     return [(x - avg) / std for x in original]
 
 
-Point = TypeVar('Point', bound=DataPoint)
+Point = TypeVar('Point', bound='DataPoint')
+
+
+@dataclass
+class Cluster(Generic[Point]):
+    points: List[Point]
+    centroid: DataPoint
 
 
 class KMeans(Generic[Point]):
-    @dataclass
-    class Cluster:
-        points: List[Point]
-        centroid: DataPoint
 
     def __init__(self, k: int, points: List[Point]) -> None:
-        if k < 1: # k-means can't do negative or zero clusters
+        if k < 1:  # k-means can't do negative or zero clusters
             raise ValueError("k must be >= 1")
         self._points: List[Point] = points
         self._zscore_normalize()
         # initialize empty clusters with random centroids
-        self._clusters: List[KMeans.Cluster] = []
+        self._clusters: List[Cluster[Point]] = []
         for _ in range(k):
             rand_point: DataPoint = self._random_point()
-            cluster: KMeans.Cluster = KMeans.Cluster([], rand_point)
+            cluster: Cluster = Cluster([], rand_point)
             self._clusters.append(cluster)
 
     @property
@@ -81,13 +83,13 @@ class KMeans(Generic[Point]):
         for point in self._points:
             closest: DataPoint = min(self._centroids, key=partial(DataPoint.distance, point))
             idx: int = self._centroids.index(closest)
-            cluster: KMeans.Cluster = self._clusters[idx]
+            cluster: Cluster = self._clusters[idx]
             cluster.points.append(point)
 
     # Find the center of each cluster and move the centroid to there
     def _generate_centroids(self) -> None:
         for cluster in self._clusters:
-            if len(cluster.points) == 0: # keep the same centroid if no points
+            if len(cluster.points) == 0:  # keep the same centroid if no points
                 continue
             means: List[float] = []
             for dimension in range(cluster.points[0].num_dimensions):
@@ -95,14 +97,14 @@ class KMeans(Generic[Point]):
                 means.append(mean(dimension_slice))
             cluster.centroid = DataPoint(means)
 
-    def run(self, max_iterations: int = 100) -> List[KMeans.Cluster]:
+    def run(self, max_iterations: int = 100) -> List[Cluster]:
         for iteration in range(max_iterations):
-            for cluster in self._clusters: # clear all clusters
+            for cluster in self._clusters:  # clear all clusters
                 cluster.points.clear()
-            self._assign_clusters() # find cluster each point is closest to
-            old_centroids: List[DataPoint] = deepcopy(self._centroids) # record
-            self._generate_centroids() # find new centroids
-            if old_centroids == self._centroids: # have centroids moved?
+            self._assign_clusters()  # find cluster each point is closest to
+            old_centroids: List[DataPoint] = deepcopy(self._centroids)  # record
+            self._generate_centroids()  # find new centroids
+            if old_centroids == self._centroids:  # have centroids moved?
                 print(f"Converged after {iteration} iterations")
                 return self._clusters
         return self._clusters
@@ -112,7 +114,7 @@ if __name__ == "__main__":
     point1: DataPoint = DataPoint([2.0, 1.0, 1.0])
     point2: DataPoint = DataPoint([2.0, 2.0, 5.0])
     point3: DataPoint = DataPoint([3.0, 1.5, 2.5])
-    kmeans_test: KMeans[DataPoint] = KMeans(2, [point1, point2, point3])
-    test_clusters: List[KMeans.Cluster] = kmeans_test.run()
+    kmeans_test: KMeans[DataPoint] = KMeans(3, [point1, point2, point3])
+    test_clusters: List[Cluster] = kmeans_test.run()
     for index, cluster in enumerate(test_clusters):
         print(f"Cluster {index}: {cluster.points}")
