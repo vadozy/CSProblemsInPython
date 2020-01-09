@@ -21,7 +21,9 @@ from util import dot_product
 
 
 class Layer:
-    def __init__(self, previous_layer: Optional[Layer], num_neurons: int, learning_rate: float, activation_function: Callable[[float], float], derivative_activation_function: Callable[[float], float]) -> None:
+    def __init__(self, previous_layer: Optional[Layer], num_neurons: int, learning_rate: float,
+                 activation_function: Callable[[float], float],
+                 derivative_activation_function: Callable[[float], float]) -> None:
         self.previous_layer: Optional[Layer] = previous_layer
         self.neurons: List[Neuron] = []
         # the following could all be one large list comprehension, but gets a bit long that way
@@ -44,7 +46,8 @@ class Layer:
     # should only be called on output layer
     def calculate_deltas_for_output_layer(self, expected: List[float]) -> None:
         for n in range(len(self.neurons)):
-            self.neurons[n].delta = self.neurons[n].derivative_activation_function(self.neurons[n].output_cache) * (expected[n] - self.output_cache[n])
+            self.neurons[n].delta = self.neurons[n].derivative_activation_function(self.neurons[n].output_cache) * (
+                        expected[n] - self.output_cache[n])
 
     # should not be called on output layer
     def calculate_deltas_for_hidden_layer(self, next_layer: Layer) -> None:
@@ -53,4 +56,3 @@ class Layer:
             next_deltas: List[float] = [n.delta for n in next_layer.neurons]
             sum_weights_and_deltas: float = dot_product(next_weights, next_deltas)
             neuron.delta = neuron.derivative_activation_function(neuron.output_cache) * sum_weights_and_deltas
-
