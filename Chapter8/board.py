@@ -53,4 +53,3 @@ class Board(ABC):
     @abstractmethod
     def evaluate(self, player: Piece) -> float:
         ...
-

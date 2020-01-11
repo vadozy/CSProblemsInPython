@@ -22,7 +22,7 @@ from board import Piece, Board, Move
 class C4Piece(Piece, Enum):
     B = "B"
     R = "R"
-    E = " " # stand-in for empty
+    E = " "  # stand-in for empty
 
     @property
     def opposite(self) -> C4Piece:
@@ -38,11 +38,11 @@ class C4Piece(Piece, Enum):
 
 
 def generate_segments(num_columns: int, num_rows: int, segment_length: int) -> List[List[Tuple[int, int]]]:
-    segments: List[List[Tuple[int, int]]] = []
+    segments = []
     # generate the vertical segments
     for c in range(num_columns):
         for r in range(num_rows - segment_length + 1):
-            segment: List[Tuple[int, int]] = []
+            segment = []
             for t in range(segment_length):
                 segment.append((c, r + t))
             segments.append(segment)
@@ -149,11 +149,11 @@ class C4Board(Board):
     def _evaluate_segment(self, segment: List[Tuple[int, int]], player: Piece) -> float:
         black_count, red_count = self._count_segment(segment)
         if red_count > 0 and black_count > 0:
-            return 0 # mixed segments are neutral
+            return 0  # mixed segments are neutral
         count: int = max(red_count, black_count)
         score: float = 0
         if count == 2:
-            score = 1
+            score = 45
         elif count == 3:
             score = 100
         elif count == 4:
@@ -179,4 +179,3 @@ class C4Board(Board):
                 display += f"{self.position[c][r]}" + "|"
             display += "\n"
         return display
-

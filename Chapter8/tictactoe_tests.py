@@ -21,6 +21,15 @@ from board import Move
 
 
 class TTTMinimaxTestCase(unittest.TestCase):
+    def test_starting_position(self):
+        starting_position: List[TTTPiece] = [TTTPiece.E, TTTPiece.E, TTTPiece.E,
+                                             TTTPiece.E, TTTPiece.E, TTTPiece.E,
+                                             TTTPiece.E, TTTPiece.E, TTTPiece.E]
+        test_board1: TTTBoard = TTTBoard(starting_position, TTTPiece.X)
+        answer1: Move = find_best_move(test_board1)
+        print(f"Best 1st move: {answer1}")
+        self.assertTrue(True)
+
     def test_easy_position(self):
         # win in 1 move
         to_win_easy_position: List[TTTPiece] = [TTTPiece.X, TTTPiece.O, TTTPiece.X,
@@ -51,5 +60,3 @@ class TTTMinimaxTestCase(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
-
